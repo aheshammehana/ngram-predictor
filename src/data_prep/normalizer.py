@@ -59,7 +59,7 @@ class Normalizer:
         """
         Remove numbers from text.
         """
-        pass
+        return ''.join(char for char in text if not char.isdigit())
 
     def remove_whitespace(self, text):
         """
