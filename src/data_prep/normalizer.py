@@ -26,7 +26,21 @@ class Normalizer:
         """
         Remove Project Gutenberg header and footer from raw text.
         """
-        pass
+        
+        start_marker = "*** START OF THE PROJECT GUTENBERG EBOOK"
+        end_marker = "*** END OF THE PROJECT GUTENBERG EBOOK"
+
+        start_index = text.find(start_marker)
+        end_index = text.find(end_marker)
+
+        if start_index != -1:
+            text = text[start_index + len(start_marker):]
+
+        if end_index != -1:
+            text = text[:end_index]
+
+        return text.strip()
+
 
     def lowercase(self, text):
         """
