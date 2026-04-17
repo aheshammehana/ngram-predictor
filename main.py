@@ -4,6 +4,9 @@ import os
 from dotenv import load_dotenv
 from src.data_prep.normalizer import Normalizer
 from src.model.ngram_model import NGramModel
+from src.inference.predictor import Predictor
+from src.data_prep.normalizer import Normalizer
+
 
 def run_dataprep():
     """
@@ -78,7 +81,7 @@ def main():
     parser.add_argument(
         "--step",
         required=True,
-        choices=["dataprep", "model"],
+        choices=["dataprep", "model", "inference"],
         help="Pipeline step to run"
     )
     args = parser.parse_args()
@@ -87,6 +90,29 @@ def main():
         run_dataprep()
     elif args.step == "model":
         run_model()
+    elif args.step == "inference":
+        run_inference()    
+
+
+def run_inference():
+    normalizer = Normalizer()
+
+    predictor = Predictor(
+        model_path=os.getenv("MODEL"),
+        vocab_path=os.getenv("VOCAB"),
+        normalizer=normalizer
+    )
+
+    k = int(os.getenv("TOP_K"))
+
+    print("Type text (or 'quit' to exit):")
+    while True:
+        text = input("> ").strip()
+        if text.lower() == "quit":
+            break
+
+        predictions = predictor.predict_next(text, k)
+        print("Predictions:", predictions)
 
 
 if __name__ == "__main__":
