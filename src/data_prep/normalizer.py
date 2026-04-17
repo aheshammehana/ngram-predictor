@@ -46,7 +46,7 @@ class Normalizer:
         """
         Convert text to lowercase.
         """
-        pass
+        return text.lower()
 
     def remove_punctuation(self, text):
         """
