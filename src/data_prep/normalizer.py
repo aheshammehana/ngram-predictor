@@ -23,7 +23,7 @@ class Normalizer:
                 with open(file_path, "r", encoding="utf-8") as f:
                     texts.append(f.read())
 
-        return "\n".join(texts)
+        return texts
 
 
     def strip_gutenberg(self, text):
@@ -98,11 +98,13 @@ class Normalizer:
 
     def save(self, sentences, filepath):
         """
-        Save tokenized sentences to a file.
+        Write tokenized sentences to a file.
+        Each sentence is written on one line, tokens separated by spaces.
         """
         with open(filepath, "w", encoding="utf-8") as f:
-            for sentence in sentences:
-                f.write(sentence + "\n")
+            for tokens in sentences:
+                line = " ".join(tokens)
+                f.write(line + "\n")
 
 
 def main():
