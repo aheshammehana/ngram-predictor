@@ -76,7 +76,11 @@ class Normalizer:
         Apply all normalization steps in order:
         lowercase → remove punctuation → remove numbers → remove whitespace.
         """
-        pass
+        text = self.lowercase(text)
+        text = self.remove_punctuation(text)
+        text = self.remove_numbers(text)
+        text = self.remove_whitespace(text)
+        return text
 
     def sentence_tokenize(self, text):
         """
