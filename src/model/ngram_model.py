@@ -8,21 +8,28 @@ class NGramModel:
     with backoff from highest order to unigrams.
     """
 
-    def __init__(self, ngram_order, unk_threshold):
+    def __init__(self, ngram_order: int, unk_threshold: int):
         """
         Initialize the model.
+
+        :param ngram_order: Maximum n-gram order (e.g. 4)
+        :param unk_threshold: Minimum frequency for a word to stay in vocab
         """
         self.ngram_order = ngram_order
         self.unk_threshold = unk_threshold
 
         self.vocab = set()
         self.ngram_counts = defaultdict(Counter)
-        self.probabilities = dict()
+        self.probabilities = {}
 
-    def build_vocab(self, token_file):
+    # -------------------------------------------------
+    # Vocabulary
+    # -------------------------------------------------
+
+    def build_vocab(self, token_file: str):
         """
         Build vocabulary from tokenized training file.
-        Words that appear fewer times than unk_threshold
+        Words appearing fewer times than unk_threshold
         are replaced by <UNK>.
         """
         word_counts = Counter()
@@ -40,14 +47,18 @@ class NGramModel:
 
         self.vocab.add("<UNK>")
 
-    def save_vocab(self, vocab_path):
+    def save_vocab(self, vocab_path: str):
         """
-        Save vocabulary to a JSON file.
+        Save vocabulary to vocab.json.
         """
         with open(vocab_path, "w", encoding="utf-8") as f:
             json.dump(sorted(self.vocab), f, indent=2)
 
-    def build_ngram_counts(self, token_file):
+    # -------------------------------------------------
+    # N-gram counts
+    # -------------------------------------------------
+
+    def build_ngram_counts(self, token_file: str):
         """
         Build n-gram counts for all orders from 1 to ngram_order.
         """
@@ -68,21 +79,53 @@ class NGramModel:
                         continue
 
                     for i in range(len(tokens) - n + 1):
-                        ngram = tuple(tokens[i:i + n])
+                        ngram = tuple(tokens[i : i + n])
                         self.ngram_counts[n][ngram] += 1
 
+    # -------------------------------------------------
+    # Probabilities (MLE)
+    # -------------------------------------------------
 
-def main():
-    print("Running ngram_model.py")
+    def build_probabilities(self):
+        """
+        Compute Maximum Likelihood Estimation (MLE)
+        probabilities from n-gram counts.
+        """
+        self.probabilities = {}
 
-    model = NGramModel(ngram_order=4, unk_threshold=3)
-    model.build_vocab("data/processed/train_tokens.txt")
-    model.build_ngram_counts("data/processed/train_tokens.txt")
+        # Unigrams
+        total = sum(self.ngram_counts[1].values())
+        self.probabilities[1] = {
+            ngram: count / total
+            for ngram, count in self.ngram_counts[1].items()
+        }
 
-    print("Unigram count size:", len(model.ngram_counts[1]))
-    print("Bigram count size:", len(model.ngram_counts[2]))
-    print("Trigram count size:", len(model.ngram_counts[3]))
+        # Higher-order n-grams
+        for n in range(2, self.ngram_order + 1):
+            self.probabilities[n] = {}
 
+            for ngram, count in self.ngram_counts[n].items():
+                prefix = ngram[:-1]
+                prefix_count = self.ngram_counts[n - 1][prefix]
 
-if __name__ == "__main__":
-    main()
+                if prefix_count > 0:
+                    self.probabilities[n][ngram] = count / prefix_count
+
+    # -------------------------------------------------
+    # Serialization
+    # -------------------------------------------------
+
+    def save_model(self, model_path: str):
+        """
+        Save probability tables to model.json.
+        """
+        output = {}
+
+        for n, probs in self.probabilities.items():
+            output[f"{n}gram"] = {
+                " ".join(ngram): prob
+                for ngram, prob in probs.items()
+            }
+
+        with open(model_path, "w", encoding="utf-8") as f:
+            json.dump(output, f, indent=2)

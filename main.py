@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from src.data_prep.normalizer import Normalizer
-
+from src.model.ngram_model import NGramModel
 
 def run_dataprep():
     """
@@ -51,6 +51,24 @@ def run_dataprep():
     # 6. Save tokenized sentences
     normalizer.save(all_sentences, train_tokens_path)
 
+def run_model():
+    model = NGramModel(
+        ngram_order=int(os.getenv("NGRAM_ORDER")),
+        unk_threshold=int(os.getenv("UNK_THRESHOLD"))
+    )
+
+    token_file = os.getenv("TRAIN_TOKENS")
+    vocab_path = os.getenv("VOCAB")
+    model_path = os.getenv("MODEL")
+
+    model.build_vocab(token_file)
+    model.save_vocab(vocab_path)
+
+    model.build_ngram_counts(token_file)
+    model.build_probabilities()
+    model.save_model(model_path)
+
+    print("Model and vocabulary saved.")
 
 def main():
     # Load environment variables
@@ -60,13 +78,15 @@ def main():
     parser.add_argument(
         "--step",
         required=True,
-        choices=["dataprep"],
+        choices=["dataprep", "model"],
         help="Pipeline step to run"
     )
     args = parser.parse_args()
 
     if args.step == "dataprep":
         run_dataprep()
+    elif args.step == "model":
+        run_model()
 
 
 if __name__ == "__main__":
