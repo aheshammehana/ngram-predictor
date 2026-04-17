@@ -94,7 +94,7 @@ class Normalizer:
         """
         Split a sentence into tokens (words).
         """
-        pass
+        return sentence.split()
 
     def save(self, sentences, filepath):
         """
