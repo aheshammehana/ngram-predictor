@@ -100,7 +100,9 @@ class Normalizer:
         """
         Save tokenized sentences to a file.
         """
-        pass
+        with open(filepath, "w", encoding="utf-8") as f:
+            for sentence in sentences:
+                f.write(sentence + "\n")
 
 
 def main():
