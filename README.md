@@ -30,8 +30,22 @@ ngram-predictor/
 ├── data/            # generated locally (ignored by Git)
 └── README.md
 
-## Setup Instructions
+## Brief Instructions
+Clone the code from Github:
+git clone https://github.com/aheshammehana/ngram-predictor.git
+cd ngram-predictor
 
+Run these commands from the project root:
+mkdir data
+mkdir data\processed
+mkdir data\model
+
+Then run:
+python main.py --step dataprep
+python main.py --step model
+python main.py --step inference
+
+## Detailed Instructions
 1. Create and activate a Python environment (Anaconda is recommended):
 
 conda create -n ngram python=3.10
@@ -39,7 +53,7 @@ conda activate ngram
 
 2. Install required dependencies:
     pip install -r requirements.txt
-    
+
 4. Ensure the configuration file exists:
    config/.env
 
