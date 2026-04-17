@@ -1,4 +1,5 @@
 import os 
+import string
 
 class Normalizer:
     """
@@ -52,7 +53,7 @@ class Normalizer:
         """
         Remove punctuation from text.
         """
-        pass
+        return text.translate(str.maketrans("", "", string.punctuation))
 
     def remove_numbers(self, text):
         """
