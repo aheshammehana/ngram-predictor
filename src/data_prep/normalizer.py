@@ -86,7 +86,9 @@ class Normalizer:
         """
         Split text into a list of sentences.
         """
-        pass
+        sentences = text.split("\n")
+        sentences = [s.strip() for s in sentences if s.strip()]
+        return sentences
 
     def word_tokenize(self, sentence):
         """
