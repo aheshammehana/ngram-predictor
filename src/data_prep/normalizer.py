@@ -1,5 +1,8 @@
 import os 
 import string
+import re
+
+from matplotlib import text
 
 class Normalizer:
     """
@@ -65,7 +68,8 @@ class Normalizer:
         """
         Remove extra whitespace and blank lines.
         """
-        pass
+        text = re.sub(r"\s+", " ", text)
+        return text.strip()
 
     def normalize(self, text):
         """
