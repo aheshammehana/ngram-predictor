@@ -2,7 +2,6 @@ import os
 import string
 import re
 
-from matplotlib import text
 
 class Normalizer:
     """
