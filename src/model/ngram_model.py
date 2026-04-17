@@ -11,9 +11,6 @@ class NGramModel:
     def __init__(self, ngram_order, unk_threshold):
         """
         Initialize the model.
-
-        :param ngram_order: Maximum n-gram order (e.g. 4)
-        :param unk_threshold: Minimum frequency for a word to stay in vocab
         """
         self.ngram_order = ngram_order
         self.unk_threshold = unk_threshold
@@ -50,12 +47,41 @@ class NGramModel:
         with open(vocab_path, "w", encoding="utf-8") as f:
             json.dump(sorted(self.vocab), f, indent=2)
 
+    def build_ngram_counts(self, token_file):
+        """
+        Build n-gram counts for all orders from 1 to ngram_order.
+        """
+        self.ngram_counts = defaultdict(Counter)
+
+        with open(token_file, "r", encoding="utf-8") as f:
+            for line in f:
+                tokens = line.strip().split()
+
+                # Replace OOV words with <UNK>
+                tokens = [
+                    token if token in self.vocab else "<UNK>"
+                    for token in tokens
+                ]
+
+                for n in range(1, self.ngram_order + 1):
+                    if len(tokens) < n:
+                        continue
+
+                    for i in range(len(tokens) - n + 1):
+                        ngram = tuple(tokens[i:i + n])
+                        self.ngram_counts[n][ngram] += 1
+
 
 def main():
-    # Temporary standalone test
+    print("Running ngram_model.py")
+
     model = NGramModel(ngram_order=4, unk_threshold=3)
     model.build_vocab("data/processed/train_tokens.txt")
-    print("Vocab size:", len(model.vocab))
+    model.build_ngram_counts("data/processed/train_tokens.txt")
+
+    print("Unigram count size:", len(model.ngram_counts[1]))
+    print("Bigram count size:", len(model.ngram_counts[2]))
+    print("Trigram count size:", len(model.ngram_counts[3]))
 
 
 if __name__ == "__main__":
